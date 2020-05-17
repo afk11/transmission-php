@@ -1,4 +1,5 @@
 <?php
+
 namespace Transmission\Model;
 
 /**
@@ -12,7 +13,7 @@ class FreeSpace extends AbstractModel
     private $path;
 
     /**
-     * @var integer
+     * @var int
      */
     private $size;
 
@@ -39,7 +40,7 @@ class FreeSpace extends AbstractModel
     /**
      * Gets the value of size.
      *
-     * @return integer
+     * @return int
      */
     public function getSize()
     {
@@ -49,7 +50,7 @@ class FreeSpace extends AbstractModel
     /**
      * Sets the value of size.
      *
-     * @param integer $size the size
+     * @param int $size the size
      */
     public function setSize($size)
     {
@@ -57,13 +58,13 @@ class FreeSpace extends AbstractModel
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public static function getMapping()
+    public static function getMapping(): array
     {
-        return array(
-            'path' => 'path',
+        return [
+            'path'       => 'path',
             'size-bytes' => 'size',
-        );
+        ];
     }
 }

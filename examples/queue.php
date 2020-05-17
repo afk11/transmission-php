@@ -14,7 +14,7 @@ foreach ($queue as $torrent) {
     } else {
         if ($torrent->isDownloading()) {
             echo ": {$torrent->getPercentDone()}% ";
-            echo "(eta: ". gmdate("H:i:s", $torrent->getEta()) .")\n";
+            echo "(eta: " . gmdate("H:i:s", $torrent->getEta()) . ")\n";
         } else {
             echo ": paused\n";
         }
