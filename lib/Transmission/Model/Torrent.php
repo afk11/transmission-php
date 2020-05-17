@@ -12,6 +12,16 @@ class Torrent extends AbstractModel
     protected $id;
 
     /**
+     * @var string
+     */
+    protected $comment;
+
+    /**
+     * @var int
+     */
+    protected $doneDate;
+
+    /**
      * @var int
      */
     protected $eta;
@@ -349,12 +359,33 @@ class Torrent extends AbstractModel
         $this->uploadedEver = $uploadedEver;
     }
 
+    public function getComment(): string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(string $comment)
+    {
+        $this->comment = $comment;
+    }
+
+    public function getDoneDate(): int
+    {
+        return $this->doneDate;
+    }
+
+    public function setDoneDate(int $doneDate)
+    {
+        $this->doneDate = $doneDate;
+    }
     /**
      * {@inheritdoc}
      */
     public static function getMapping(): array
     {
         return [
+            'comment'        => 'comment',
+            'doneDate'       => 'doneDate',
             'downloadDir'    => 'downloadDir',
             'downloadedEver' => 'downloadedEver',
             'eta'            => 'eta',

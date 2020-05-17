@@ -2,11 +2,16 @@
 
 namespace Transmission\Tests;
 
+use Buzz\Exception\NetworkException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Transmission\Client;
+use Transmission\Exception\ClientException;
 
 class ClientTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var Transmission\Client
+     */
     protected $client;
 
     protected $curlMock;
@@ -16,8 +21,8 @@ class ClientTest extends \PHPUnit\Framework\TestCase
         $this->client = new Client();
 
         $this->curlMock = $this->getMockBuilder("Buzz\Client\Curl")
-                               ->setConstructorArgs([new Psr17Factory()])
-                               ->getMock();
+            ->setConstructorArgs([new Psr17Factory()])
+            ->getMock();
         $this->client->setClient($this->curlMock);
     }
 
@@ -98,9 +103,17 @@ class ClientTest extends \PHPUnit\Framework\TestCase
     public function testShouldThrowExceptionOnExceptionDuringApiCall()
     {
         $this->curlMock->method('sendRequest')
-                       ->will($this->throwException(new \Exception()));
-        $this->expectException(\RuntimeException::class);
+            ->with($this->isInstanceOf('Nyholm\Psr7\Request'))
+            ->will($this->throwException(
+                new NetworkException(
+                    new \Nyholm\Psr7\Request('GET', ''),
+                    'Could not connect to Transmission'
+                )
+            ));
+
+        $this->expectException(NetworkException::class);
         $this->expectExceptionMessage('Could not connect to Transmission');
+        $this->expectExceptionCode(0);
 
         $this->client->call('foo', []);
     }
@@ -111,8 +124,9 @@ class ClientTest extends \PHPUnit\Framework\TestCase
             ->method('sendRequest')
             ->willReturn(new \Nyholm\Psr7\Response(500));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Unexpected response received from Transmission');
+        $this->expectExceptionCode(500);
 
         $this->client->call('foo', []);
     }
@@ -123,8 +137,10 @@ class ClientTest extends \PHPUnit\Framework\TestCase
             ->method('sendRequest')
             ->willReturn(new \Nyholm\Psr7\Response(401));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Access to Transmission requires authentication');
+        $this->expectExceptionCode(401);
+
         $this->client->call('foo', []);
     }
 

@@ -52,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2020-05-09
 ### Added
 - `private` property in Torrent class
+- `comment` property on Torrent class
+- `doneDate` property on Torrent class
+- `isAvailable` method on Transmission class
 
 ### Changed
 - Compatibility with PHP >= 7.4

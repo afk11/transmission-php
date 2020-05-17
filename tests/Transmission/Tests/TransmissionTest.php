@@ -2,6 +2,7 @@
 
 namespace Transmission\Tests;
 
+use Transmission\Exception\ClientException;
 use Transmission\Model\Torrent;
 use Transmission\Transmission;
 
@@ -364,6 +365,39 @@ class TransmissionTest extends \PHPUnit\Framework\TestCase
         $transmission = new Transmission();
         $transmission->setClient($this->mockClient);
         $transmission->remove($torrent, true);
+    }
+
+    public function testShouldTellIfTransmissionRpcIsAvailable()
+    {
+        $this->mockClient->expects($this->once())
+            ->method('call')
+            ->with('', [])
+            ->will($this->returnCallback(function () {
+                return new \stdClass();
+            }));
+
+        $transmission = new Transmission();
+        $transmission->setClient($this->mockClient);
+
+        $this->assertTrue($transmission->isAvailable());
+    }
+
+    public function testShouldTellIfTransmissionRpcIsUnavailable()
+    {
+        $this->mockClient->expects($this->once())
+            ->method('call')
+            ->with('', [])
+            ->will($this->returnCallback(function () {
+                throw new ClientException('connection error', 0);
+            }));
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('connection error');
+        $this->expectExceptionCode(0);
+
+        $transmission = new Transmission();
+        $transmission->setClient($this->mockClient);
+        $transmission->isAvailable();
     }
 
     public function testShouldHaveDefaultPort()

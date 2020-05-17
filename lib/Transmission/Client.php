@@ -4,9 +4,11 @@ namespace Transmission;
 
 use Buzz\Client\BuzzClientInterface;
 use Buzz\Client\Curl;
+use Buzz\Exception\NetworkException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\Response;
+use Transmission\Exception\ClientException;
 
 /**
  * The Client class is used to make API calls to the Transmission server.
@@ -91,7 +93,7 @@ class Client
     /**
      * Make an API call.
      *
-     * @throws \RuntimeException
+     * @throws NetworkException
      */
     public function call(string $method, array $arguments): \stdClass
     {
@@ -99,8 +101,8 @@ class Client
 
         try {
             $response = $this->getClient()->sendRequest($request);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Could not connect to Transmission', 0, $e);
+        } catch (NetworkException $e) {
+            throw $e;
         }
 
         return $this->validateResponse($response, $method, $arguments);
@@ -108,10 +110,8 @@ class Client
 
     /**
      * Get the URL used to connect to Transmission.
-     *
-     * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return sprintf(
             'http://%s:%d',
@@ -212,16 +212,16 @@ class Client
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws ClientException
      */
     protected function validateResponse(Response $response, string $method, array $arguments): \stdClass
     {
         if (!in_array($response->getStatusCode(), [200, 401, 409])) {
-            throw new \RuntimeException('Unexpected response received from Transmission');
+            throw new ClientException('Unexpected response received from Transmission', $response->getStatusCode());
         }
 
         if (401 == $response->getStatusCode()) {
-            throw new \RuntimeException('Access to Transmission requires authentication');
+            throw new ClientException('Access to Transmission requires authentication', 401);
         }
 
         if (409 == $response->getStatusCode()) {

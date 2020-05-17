@@ -211,6 +211,18 @@ class Transmission
     }
 
     /**
+     * Checks whether or not Transmission is listening on configured port/host.
+     *
+     * @throws ClientException
+     */
+    public function isAvailable(): bool
+    {
+        $this->getClient()->call('', []);
+
+        return true;
+    }
+
+    /**
      * Set the client used to connect to Transmission.
      */
     public function setClient(Client $client): void
